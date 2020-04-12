@@ -26,7 +26,7 @@ func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, _ map[stri
 		hasInclude := false
 
 		setterFile := &setterFile{
-			Package: target.Package().ProtoName().String(),
+			Package: target.Descriptor().GetOptions().GetGoPackage(),
 			Name:    target.Name().String(),
 			All:     target.Descriptor().Options.ProtoReflect().Get(setter.E_AllMessages.TypeDescriptor()).Bool(),
 		}
