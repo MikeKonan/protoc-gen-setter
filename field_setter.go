@@ -62,7 +62,9 @@ func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, _ map[stri
 		}
 
 		if hasInclude {
-			panic(setterFile.into(buf))
+			if err := setterFile.into(buf); err != nil {
+				panic(err)
+			}
 		}
 
 		fieldsSetter.AddGeneratorFile(
