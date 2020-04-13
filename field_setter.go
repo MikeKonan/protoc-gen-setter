@@ -19,14 +19,16 @@ func NewFieldSetter() *fieldSetter { return &fieldSetter{ModuleBase: &pgs.Module
 
 func (fieldsSetter *fieldSetter) Name() string { return "fieldSetter" }
 
-func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, pkg map[string]pgs.Package) []pgs.Artifact {
+func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, _ map[string]pgs.Package) []pgs.Artifact {
 	for _, target := range targets {
 		buf := &bytes.Buffer{}
 
 		hasInclude := false
 
+		pkgName, base := getPackageName(target)
+
 		setterFile := &setterFile{
-			Package: target.Package().ProtoName().String(),
+			Package: pkgName,
 			Name:    target.Name().String(),
 			All:     target.Descriptor().Options.ProtoReflect().Get(setter.E_AllMessages.TypeDescriptor()).Bool(),
 		}
@@ -68,7 +70,7 @@ func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, pkg map[st
 		}
 
 		fieldsSetter.AddGeneratorFile(
-			target.InputPath().SetExt(".setter.pb.go").String(),
+			target.InputPath().SetBase(base).SetExt(".setter.pb.go").String(),
 			buf.String(),
 		)
 	}
@@ -142,4 +144,22 @@ func (fieldsSetter *fieldSetter) goType(field pgs.Field) (typ string) {
 	typ += detectType(field.Descriptor().GetType())
 
 	return
+}
+
+func getPackageName(target pgs.File) (string, string) {
+	goPackage := target.Descriptor().GetOptions().GetGoPackage()
+
+	if goPackage == "" {
+		return target.Package().ProtoName().String(), target.File().Name().String()
+	}
+
+	if index := strings.Index(goPackage, ";"); index > 0 && index+1 < len(goPackage) {
+		return goPackage[index+1:], goPackage[:index] + "/" + target.File().Name().String()
+	}
+
+	if index := strings.LastIndex(goPackage, "/"); index > 0 {
+		return goPackage[index+1:], goPackage + "/" + target.File().Name().String()
+	}
+
+	return goPackage, target.File().Name().String()
 }
