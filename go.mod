@@ -7,5 +7,5 @@ require (
 	github.com/lyft/protoc-gen-star v0.4.14
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/stretchr/testify v1.5.1 // indirect
-	google.golang.org/protobuf v1.20.1
+	google.golang.org/protobuf v1.20.1-0.20200309200217-e05f789c0967
 )
