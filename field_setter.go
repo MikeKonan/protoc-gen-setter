@@ -19,14 +19,14 @@ func NewFieldSetter() *fieldSetter { return &fieldSetter{ModuleBase: &pgs.Module
 
 func (fieldsSetter *fieldSetter) Name() string { return "fieldSetter" }
 
-func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, _ map[string]pgs.Package) []pgs.Artifact {
+func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, pkg map[string]pgs.Package) []pgs.Artifact {
 	for _, target := range targets {
 		buf := &bytes.Buffer{}
 
 		hasInclude := false
 
 		setterFile := &setterFile{
-			Package: target.Descriptor().GetOptions().GetGoPackage(),
+			Package: target.Package().ProtoName().String(),
 			Name:    target.Name().String(),
 			All:     target.Descriptor().Options.ProtoReflect().Get(setter.E_AllMessages.TypeDescriptor()).Bool(),
 		}

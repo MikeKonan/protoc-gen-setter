@@ -1,0 +1,11 @@
+syntax = "proto3";
+package main;
+
+option go_package = ".;main";
+
+import "google/protobuf/descriptor.proto";
+import "setter.proto";
+
+message Object {
+    string Id = 1 [(setter.include) = true, json_name = "id"];
+}
