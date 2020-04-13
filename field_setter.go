@@ -25,10 +25,8 @@ func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, _ map[stri
 
 		hasInclude := false
 
-		pkgName, base := getPackageName(target)
-
 		setterFile := &setterFile{
-			Package: pkgName,
+			Package: getPackageName(target),
 			Name:    target.Name().String(),
 			All:     target.Descriptor().Options.ProtoReflect().Get(setter.E_AllMessages.TypeDescriptor()).Bool(),
 		}
@@ -70,7 +68,7 @@ func (fieldsSetter *fieldSetter) Execute(targets map[string]pgs.File, _ map[stri
 		}
 
 		fieldsSetter.AddGeneratorFile(
-			target.InputPath().SetBase(base).SetExt(".setter.pb.go").String(),
+			target.InputPath().SetExt(".setter.pb.go").String(),
 			buf.String(),
 		)
 	}
@@ -146,20 +144,20 @@ func (fieldsSetter *fieldSetter) goType(field pgs.Field) (typ string) {
 	return
 }
 
-func getPackageName(target pgs.File) (string, string) {
+func getPackageName(target pgs.File) string {
 	goPackage := target.Descriptor().GetOptions().GetGoPackage()
 
 	if goPackage == "" {
-		return target.Package().ProtoName().String(), target.File().Name().String()
+		return target.Package().ProtoName().String()
 	}
 
 	if index := strings.Index(goPackage, ";"); index > 0 && index+1 < len(goPackage) {
-		return goPackage[index+1:], goPackage[:index] + "/" + target.File().Name().String()
+		return goPackage[index+1:]
 	}
 
 	if index := strings.LastIndex(goPackage, "/"); index > 0 {
-		return goPackage[index+1:], goPackage + "/" + target.File().Name().String()
+		return goPackage[index+1:]
 	}
 
-	return goPackage, target.File().Name().String()
+	return goPackage
 }
